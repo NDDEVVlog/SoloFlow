@@ -1,0 +1,60 @@
+import { useMemo, useState } from 'react'
+import { useTaskStore } from '@/store/useTaskStore'
+import { OverloadIndicator } from '@/components/mywork/OverloadIndicator'
+import { ViewToggle } from '@/components/mywork/ViewToggle'
+import { KanbanBoard } from '@/components/mywork/KanbanBoard'
+import { TaskTable } from '@/components/overview/TaskTable'
+import { NewTaskModal } from '@/components/overview/NewTaskModal'
+import { PageHeader } from './OverviewPage'
+
+export function MyWorkPage() {
+  const { tasks, sprints, currentSprintId, setCurrentSprint, viewMode, setViewMode, activeProjectId } = useTaskStore()
+  const [showNewTask, setShowNewTask] = useState(false)
+
+  const sprintTasks = useMemo(() => {
+    return tasks.filter(t => {
+      // 1. Chỉ lấy task thuộc Project hiện tại
+      if (t.projectId !== activeProjectId) return false
+      // 2. Chỉ lấy task thuộc Sprint hiện tại (nếu có chọn)
+      if (currentSprintId && t.sprintId !== currentSprintId) return false
+      return true
+    })
+  }, [tasks, activeProjectId, currentSprintId])
+
+  return (
+    <div>
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <PageHeader title="My work" subtitle="What's actually on your plate this sprint." />
+        <div className="flex items-center gap-2">
+          <select
+            className="rounded-lg border border-base-700 bg-base-800 px-2.5 py-1.5 text-sm text-base-200 outline-none focus:border-accent"
+            value={currentSprintId ?? ''}
+            onChange={(e) => setCurrentSprint(e.target.value || null)}
+          >
+            <option value="">All sprints</option>
+            {sprints.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+          <ViewToggle value={viewMode} onChange={setViewMode} />
+          <button
+            onClick={() => setShowNewTask(true)}
+            className="rounded-lg bg-accent px-3.5 py-1.5 text-sm font-medium text-white transition hover:bg-accent-dim"
+          >
+            + New task
+          </button>
+        </div>
+      </div>
+
+      <OverloadIndicator tasks={sprintTasks} />
+
+      {viewMode === 'kanban' ? (
+        <KanbanBoard tasks={sprintTasks} />
+      ) : (
+        <TaskTable tasks={sprintTasks} emptyLabel="Nothing scheduled in this sprint yet." />
+      )}
+
+      {showNewTask && <NewTaskModal onClose={() => setShowNewTask(false)} />}
+    </div>
+  )
+}
