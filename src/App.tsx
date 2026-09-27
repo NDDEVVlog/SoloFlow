@@ -5,12 +5,14 @@ import { useTaskStore } from '@/store/useTaskStore'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { MyWorkPage } from '@/pages/MyWorkPage'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { FinancePage } from '@/pages/FinancePage'
 import { ProjectSwitcher } from '@/components/common/ProjectSwitcher' // <-- IMPORT THÊM CÁI NÀY
 
 const NAV_ITEMS = [
   { to: '/overview', label: 'Project Overview', hint: 'Master backlog' },
   { to: '/my-work', label: 'My Work', hint: 'Sprint board' },
   { to: '/dashboard', label: 'Dashboard', hint: 'Performance' },
+  { to: '/finance', label: 'Thu chi', hint: 'Income & expense' },
 ]
 
 export default function App() {
@@ -31,6 +33,7 @@ export default function App() {
               <Route path="/overview" element={<OverviewPage />} />
               <Route path="/my-work" element={<MyWorkPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/finance" element={<FinancePage />} />
               <Route path="*" element={<Navigate to="/overview" replace />} />
             </Routes>
           </div>

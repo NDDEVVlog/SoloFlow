@@ -32,6 +32,24 @@ export const DEFAULT_ROLES = [
 ] as const
 export type Role = string
 
+// --- Finance (thu/chi) ------------------------------------------------
+
+export const TRANSACTION_TYPES = ['expense', 'income'] as const
+export type TransactionType = (typeof TRANSACTION_TYPES)[number]
+
+/** Seed danh mục Chi — người dùng gõ danh mục mới sẽ tự thêm vào (giống addRole). */
+export const DEFAULT_EXPENSE_CATEGORIES = [
+  'Công cụ / Phần mềm',
+  'Marketing',
+  'Thiết bị',
+  'Ăn uống',
+  'Học tập',
+  'Khác',
+]
+
+/** Seed danh mục Thu. */
+export const DEFAULT_INCOME_CATEGORIES = ['Bán hàng', 'Freelance', 'Lương', 'Khác']
+
 export const PRIORITY_STYLES: Record<Priority, { fg: string; bg: string; dot: string }> = {
   High: { fg: '#F0546B', bg: '#3A1E27', dot: '#F0546B' },
   Medium: { fg: '#E8933A', bg: '#3A2C1A', dot: '#E8933A' },

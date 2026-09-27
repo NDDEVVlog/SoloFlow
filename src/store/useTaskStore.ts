@@ -1,25 +1,23 @@
 import { create } from 'zustand'
 import { persist, type PersistStorage } from 'zustand/middleware'
-import { Sprint, Task, type SprintJSON, type TaskJSON } from '@/models'
-import { DEFAULT_ROLES } from '@/models/enums'
+import { Project, Sprint, Task, Transaction, type ProjectJSON, type SprintJSON, type TaskJSON, type TransactionJSON, type TransactionType } from '@/models'
+import { DEFAULT_ROLES, DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES } from '@/models/enums'
 import { nextTaskId, shortId } from '@/utils/id'
 import { buildSampleData } from '@/utils/sampleData'
 
 export type ViewMode = 'list' | 'kanban'
 
-export interface Project {
-  id: string
-  name: string
-}
-
 interface PersistedShape {
-  projects: Project[]
+  projects: ProjectJSON[]
   activeProjectId: string
   tasks: TaskJSON[]
   sprints: SprintJSON[]
   roles: string[]
   currentSprintId: string | null
   viewMode: ViewMode
+  transactions: TransactionJSON[]
+  expenseCategories: string[]
+  incomeCategories: string[]
 }
 
 interface TaskStoreState {
@@ -30,14 +28,15 @@ interface TaskStoreState {
   roles: string[]
   currentSprintId: string | null
   viewMode: ViewMode
+  transactions: Transaction[]
+  expenseCategories: string[]
+  incomeCategories: string[]
 
-  addProject: (name: string) => void
+  addProject: (name: string, description?: string) => Project
   setActiveProject: (id: string) => void
 
   createTask: (input: Partial<Task> & { name: string; role: string }) => Task
-  updateTask: (id: string, patch: Partial<Pick<Task,
-    'name' | 'role' | 'type' | 'priority' | 'status' | 'estHours' | 'actualHours' | 'complexity' | 'sprintId' | 'dueDate' | 'description'
-  >>) => void
+  updateTask: (id: string, patch: Partial<Pick<Task, 'name' | 'role' | 'type' | 'priority' | 'status' | 'estHours' | 'actualHours' | 'complexity' | 'sprintId' | 'dueDate' | 'description'>>) => void
   deleteTask: (id: string) => void
   setTaskStatus: (id: string, status: Task['status']) => void
 
@@ -47,11 +46,17 @@ interface TaskStoreState {
 
   addComment: (taskId: string, author: string, text: string) => void
 
-  addSprint: (name: string, startDate: string, endDate: string, capacityHours?: number) => Sprint
+  addSprint: (projectId: string, name: string, startDate: string, endDate: string, capacityHours?: number) => Sprint
   setCurrentSprint: (sprintId: string | null) => void
 
   addRole: (role: string) => void
   setViewMode: (mode: ViewMode) => void
+
+  addTransaction: (input: { type: TransactionType; amount: number; category: string; note?: string; date: string; taskId?: string | null }) => Transaction
+  updateTransaction: (id: string, patch: Partial<Pick<Transaction, 'type' | 'amount' | 'category' | 'note' | 'date' | 'taskId'>>) => void
+  deleteTransaction: (id: string) => void
+  addExpenseCategory: (category: string) => void
+  addIncomeCategory: (category: string) => void
 
   seedIfEmpty: () => void
   resetToSampleData: () => void
@@ -66,20 +71,24 @@ const classAwareStorage = {
 export const useTaskStore = create<TaskStoreState>()(
   persist(
     (set, get) => ({
-      projects: [{ id: 'default-project', name: 'Master Project' }],
+      projects: [new Project('default-project', 'Master Project', 'Default initial project')],
       activeProjectId: 'default-project',
       tasks: [],
       sprints: [],
       roles: [...DEFAULT_ROLES],
       currentSprintId: null,
       viewMode: 'kanban',
+      transactions: [],
+      expenseCategories: [...DEFAULT_EXPENSE_CATEGORIES],
+      incomeCategories: [...DEFAULT_INCOME_CATEGORIES],
 
-      addProject: (name) => {
-        const id = 'PROJ-' + shortId('PRJ')
-        set((s) => ({ projects: [...s.projects, { id, name }], activeProjectId: id }))
+      addProject: (name, description = '') => {
+        const project = new Project('PROJ-' + shortId('PRJ'), name, description)
+        set((s) => ({ projects: [...s.projects, project], activeProjectId: project.id, currentSprintId: null }))
+        return project
       },
-      
-      setActiveProject: (id) => set({ activeProjectId: id }),
+
+      setActiveProject: (id) => set({ activeProjectId: id, currentSprintId: null }),
 
       createTask: (input) => {
         const existingIds = get().tasks.map((t) => t.id)
@@ -162,8 +171,8 @@ export const useTaskStore = create<TaskStoreState>()(
         }))
       },
 
-      addSprint: (name, startDate, endDate, capacityHours = 40) => {
-        const sprint = new Sprint(shortId('SPR'), name, startDate, endDate, capacityHours)
+      addSprint: (projectId, name, startDate, endDate, capacityHours = 40) => {
+        const sprint = new Sprint(shortId('SPR'), projectId, name, startDate, endDate, capacityHours)
         set((s) => ({ sprints: [...s.sprints, sprint] }))
         return sprint
       },
@@ -178,6 +187,46 @@ export const useTaskStore = create<TaskStoreState>()(
 
       setViewMode: (mode) => set({ viewMode: mode }),
 
+      addTransaction: (input) => {
+        const txn = new Transaction({
+          id: shortId('TXN'),
+          type: input.type,
+          amount: input.amount,
+          category: input.category,
+          note: input.note,
+          date: input.date,
+          taskId: input.taskId ?? null,
+        })
+        set((s) => ({ transactions: [txn, ...s.transactions] }))
+        if (input.type === 'expense') get().addExpenseCategory(input.category)
+        else get().addIncomeCategory(input.category)
+        return txn
+      },
+
+      updateTransaction: (id, patch) => {
+        set((s) => ({
+          transactions: s.transactions.map((t) => {
+            if (t.id !== id) return t
+            Object.assign(t, patch)
+            return t
+          }),
+        }))
+      },
+
+      deleteTransaction: (id) => set((s) => ({ transactions: s.transactions.filter((t) => t.id !== id) })),
+
+      addExpenseCategory: (category) => {
+        const trimmed = category.trim()
+        if (!trimmed) return
+        set((s) => (s.expenseCategories.includes(trimmed) ? s : { expenseCategories: [...s.expenseCategories, trimmed] }))
+      },
+
+      addIncomeCategory: (category) => {
+        const trimmed = category.trim()
+        if (!trimmed) return
+        set((s) => (s.incomeCategories.includes(trimmed) ? s : { incomeCategories: [...s.incomeCategories, trimmed] }))
+      },
+
       seedIfEmpty: () => {
         if (get().tasks.length > 0) return
         get().resetToSampleData()
@@ -185,19 +234,25 @@ export const useTaskStore = create<TaskStoreState>()(
 
       resetToSampleData: () => {
         const { tasks, sprints } = buildSampleData()
-        tasks.forEach(t => { 
+        tasks.forEach(t => {
           t.projectId = 'default-project'
           if (!t.complexity) t.complexity = 2
         })
+        sprints.forEach(s => {
+          s.projectId = 'default-project'
+        })
         const roles = Array.from(new Set([...DEFAULT_ROLES, ...tasks.map((t) => t.role)]))
-        set({ 
-          projects: [{ id: 'default-project', name: 'Master Project' }],
+        set({
+          projects: [new Project('default-project', 'Master Project', 'Sample project')],
           activeProjectId: 'default-project',
-          tasks, 
-          sprints, 
-          roles, 
-          currentSprintId: sprints[0]?.id ?? null, 
-          viewMode: 'kanban' 
+          tasks,
+          sprints,
+          roles,
+          currentSprintId: sprints[0]?.id ?? null,
+          viewMode: 'kanban',
+          transactions: [],
+          expenseCategories: [...DEFAULT_EXPENSE_CATEGORIES],
+          incomeCategories: [...DEFAULT_INCOME_CATEGORIES],
         })
       },
     }),
@@ -209,15 +264,21 @@ export const useTaskStore = create<TaskStoreState>()(
           if (!raw) return null
           const parsed = JSON.parse(raw) as { state: PersistedShape; version?: number }
           const { state } = parsed
-          
+
           const restored = {
-            projects: state.projects || [{ id: 'default-project', name: 'Master Project' }],
+            projects: (state.projects || []).map(p => Project.fromJSON(p)),
             activeProjectId: state.activeProjectId || 'default-project',
             tasks: (state.tasks || []).map(Task.fromJSON),
             sprints: (state.sprints || []).map(Sprint.fromJSON),
             roles: state.roles || [],
             currentSprintId: state.currentSprintId ?? null,
             viewMode: state.viewMode || 'kanban',
+            transactions: (state.transactions || []).map(Transaction.fromJSON),
+            expenseCategories: state.expenseCategories?.length ? state.expenseCategories : [...DEFAULT_EXPENSE_CATEGORIES],
+            incomeCategories: state.incomeCategories?.length ? state.incomeCategories : [...DEFAULT_INCOME_CATEGORIES],
+          }
+          if (restored.projects.length === 0) {
+            restored.projects.push(new Project('default-project', 'Master Project'))
           }
           return { state: restored as unknown as TaskStoreState, version: parsed.version }
         },
@@ -225,13 +286,16 @@ export const useTaskStore = create<TaskStoreState>()(
           const s = value.state
           const toStore = {
             state: {
-              projects: s.projects,
+              projects: s.projects.map(p => p.toJSON()),
               activeProjectId: s.activeProjectId,
-              tasks: s.tasks.map((t) => t.toJSON()),
-              sprints: s.sprints.map((sp) => sp.toJSON()),
+              tasks: s.tasks.map(t => t.toJSON()),
+              sprints: s.sprints.map(sp => sp.toJSON()),
               roles: s.roles,
               currentSprintId: s.currentSprintId,
               viewMode: s.viewMode,
+              transactions: s.transactions.map(t => t.toJSON()),
+              expenseCategories: s.expenseCategories,
+              incomeCategories: s.incomeCategories,
             },
             version: value.version,
           }
@@ -248,8 +312,11 @@ export const useTaskStore = create<TaskStoreState>()(
           roles: s.roles,
           currentSprintId: s.currentSprintId,
           viewMode: s.viewMode,
+          transactions: s.transactions,
+          expenseCategories: s.expenseCategories,
+          incomeCategories: s.incomeCategories,
         }) as TaskStoreState,
-      version: 3, // BUMP VERSION to merge new fields properly
+      version: 5,
     }
   )
 )

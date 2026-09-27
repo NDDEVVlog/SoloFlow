@@ -5,17 +5,19 @@ import { ViewToggle } from '@/components/mywork/ViewToggle'
 import { KanbanBoard } from '@/components/mywork/KanbanBoard'
 import { TaskTable } from '@/components/overview/TaskTable'
 import { NewTaskModal } from '@/components/overview/NewTaskModal'
+import { NewSprintModal } from '@/components/sprints/NewSprintModal'
 import { PageHeader } from './OverviewPage'
 
 export function MyWorkPage() {
   const { tasks, sprints, currentSprintId, setCurrentSprint, viewMode, setViewMode, activeProjectId } = useTaskStore()
   const [showNewTask, setShowNewTask] = useState(false)
+  const [showNewSprint, setShowNewSprint] = useState(false)
+
+  const projectSprints = useMemo(() => sprints.filter(s => s.projectId === activeProjectId), [sprints, activeProjectId])
 
   const sprintTasks = useMemo(() => {
     return tasks.filter(t => {
-      // 1. Chỉ lấy task thuộc Project hiện tại
       if (t.projectId !== activeProjectId) return false
-      // 2. Chỉ lấy task thuộc Sprint hiện tại (nếu có chọn)
       if (currentSprintId && t.sprintId !== currentSprintId) return false
       return true
     })
@@ -26,16 +28,25 @@ export function MyWorkPage() {
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <PageHeader title="My work" subtitle="What's actually on your plate this sprint." />
         <div className="flex items-center gap-2">
-          <select
-            className="rounded-lg border border-base-700 bg-base-800 px-2.5 py-1.5 text-sm text-base-200 outline-none focus:border-accent"
-            value={currentSprintId ?? ''}
-            onChange={(e) => setCurrentSprint(e.target.value || null)}
-          >
-            <option value="">All sprints</option>
-            {sprints.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
+          <div className="flex items-center overflow-hidden rounded-lg border border-base-700 bg-base-800 focus-within:border-accent">
+            <select
+              className="bg-transparent px-2.5 py-1.5 text-sm text-base-200 outline-none"
+              value={currentSprintId ?? ''}
+              onChange={(e) => setCurrentSprint(e.target.value || null)}
+            >
+              <option value="">All sprints</option>
+              {projectSprints.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <button
+              onClick={() => setShowNewSprint(true)}
+              className="border-l border-base-700 px-2.5 py-1.5 text-sm font-medium text-accent hover:bg-base-700 hover:text-accent-bright"
+              title="Create New Sprint"
+            >
+              +
+            </button>
+          </div>
           <ViewToggle value={viewMode} onChange={setViewMode} />
           <button
             onClick={() => setShowNewTask(true)}
@@ -55,6 +66,7 @@ export function MyWorkPage() {
       )}
 
       {showNewTask && <NewTaskModal onClose={() => setShowNewTask(false)} />}
+      {showNewSprint && <NewSprintModal onClose={() => setShowNewSprint(false)} />}
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { calculateDashboardKPIs } from '@/store/selectors'
 import { TimeProgressChart } from '@/components/dashboard/TimeProgressChart'
 import { WorkloadByRole } from '@/components/dashboard/WorkloadByRole'
 import { EstVsActualTable } from '@/components/dashboard/EstVsActualTable'
+import { FinanceWidget } from '@/components/dashboard/FinanceWidget'
 import { PageHeader } from './OverviewPage'
 
 export function DashboardPage() {
@@ -73,6 +74,8 @@ export function DashboardPage() {
             <EstVsActualTable tasks={projectTasks} />
           </div>
         </div>
+
+        <FinanceWidget />
       </div>
     </div>
   )

@@ -1,25 +1,23 @@
 export interface SprintJSON {
   id: string
+  projectId: string
   name: string
   startDate: string
   endDate: string
   capacityHours: number
 }
 
-/**
- * A time-boxed work period ("Tuần 1", "Sprint 3"...). Capacity defaults to
- * 40h/week to match the Overload Indicator's threshold, but is editable per
- * sprint so a short week or a crunch week can carry a different cap.
- */
 export class Sprint {
   id: string
+  projectId: string
   name: string
   startDate: string
   endDate: string
   capacityHours: number
 
-  constructor(id: string, name: string, startDate: string, endDate: string, capacityHours = 40) {
+  constructor(id: string, projectId: string, name: string, startDate: string, endDate: string, capacityHours = 40) {
     this.id = id
+    this.projectId = projectId
     this.name = name
     this.startDate = startDate
     this.endDate = endDate
@@ -35,6 +33,7 @@ export class Sprint {
   toJSON(): SprintJSON {
     return {
       id: this.id,
+      projectId: this.projectId,
       name: this.name,
       startDate: this.startDate,
       endDate: this.endDate,
@@ -43,6 +42,13 @@ export class Sprint {
   }
 
   static fromJSON(json: SprintJSON): Sprint {
-    return new Sprint(json.id, json.name, json.startDate, json.endDate, json.capacityHours)
+    return new Sprint(
+      json.id,
+      json.projectId || 'default-project', 
+      json.name,
+      json.startDate,
+      json.endDate,
+      json.capacityHours
+    )
   }
 }
