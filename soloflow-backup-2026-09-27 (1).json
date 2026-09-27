@@ -1,0 +1,188 @@
+{
+  "projects": [
+    {
+      "id": "default-project",
+      "name": "Arc 1 : I am starting again",
+      "description": "Sample project",
+      "createdAt": "2026-09-27T15:39:11.483Z"
+    }
+  ],
+  "activeProjectId": "default-project",
+  "tasks": [
+    {
+      "id": "TSK-001",
+      "projectId": "default-project",
+      "name": "Hỏi anh Phúc vụ google ads",
+      "role": "Developer",
+      "type": "Task",
+      "priority": "Medium",
+      "status": "Todo",
+      "estHours": 2,
+      "actualHours": 0,
+      "complexity": 1,
+      "sprintId": "SPR-001",
+      "dueDate": "2026-09-29",
+      "description": "",
+      "checklist": {
+        "items": []
+      },
+      "comments": [],
+      "createdAt": "2026-09-27T23:23:04.337Z",
+      "updatedAt": "2026-09-27T23:43:54.051Z"
+    },
+    {
+      "id": "TSK-002",
+      "projectId": "default-project",
+      "name": "Làm  3 kịch bản",
+      "role": "Developer",
+      "type": "Task",
+      "priority": "Medium",
+      "status": "Todo",
+      "estHours": 4,
+      "actualHours": 0,
+      "complexity": 5,
+      "sprintId": "SPR-001",
+      "dueDate": "2026-09-29",
+      "description": "",
+      "checklist": {
+        "items": [
+          {
+            "id": "CI-mukgq5w01",
+            "label": "SkyMail On Tiktok",
+            "done": false
+          },
+          {
+            "id": "CI-mukgq5w02",
+            "label": "100 ngày tập vẽ ft Sora",
+            "done": false
+          },
+          {
+            "id": "CI-mukgqewk3",
+            "label": "Toon Shader",
+            "done": false
+          }
+        ]
+      },
+      "comments": [],
+      "createdAt": "2026-09-27T23:41:38.255Z",
+      "updatedAt": "2026-09-27T23:43:57.818Z"
+    },
+    {
+      "id": "TSK-003",
+      "projectId": "default-project",
+      "name": "Update Sonar Blind to Unity 6",
+      "role": "Developer",
+      "type": "Task",
+      "priority": "Medium",
+      "status": "Todo",
+      "estHours": 3,
+      "actualHours": 0,
+      "complexity": 2,
+      "sprintId": "SPR-001",
+      "dueDate": null,
+      "description": "",
+      "checklist": {
+        "items": []
+      },
+      "comments": [],
+      "createdAt": "2026-09-27T23:42:29.044Z",
+      "updatedAt": "2026-09-27T23:42:29.044Z"
+    },
+    {
+      "id": "TSK-004",
+      "projectId": "default-project",
+      "name": "Build Map",
+      "role": "Developer",
+      "type": "Task",
+      "priority": "Medium",
+      "status": "Todo",
+      "estHours": 6,
+      "actualHours": 0,
+      "complexity": 5,
+      "sprintId": "SPR-001",
+      "dueDate": null,
+      "description": "",
+      "checklist": {
+        "items": []
+      },
+      "comments": [],
+      "createdAt": "2026-09-27T23:43:31.378Z",
+      "updatedAt": "2026-09-27T23:43:47.961Z"
+    },
+    {
+      "id": "TSK-005",
+      "projectId": "default-project",
+      "name": "Vẽ",
+      "role": "Developer",
+      "type": "Task",
+      "priority": "Medium",
+      "status": "Todo",
+      "estHours": 7,
+      "actualHours": 0,
+      "complexity": 2,
+      "sprintId": "SPR-001",
+      "dueDate": null,
+      "description": "",
+      "checklist": {
+        "items": []
+      },
+      "comments": [],
+      "createdAt": "2026-09-27T23:44:51.700Z",
+      "updatedAt": "2026-09-27T23:44:51.700Z"
+    },
+    {
+      "id": "TSK-006",
+      "projectId": "default-project",
+      "name": "Tập Đàn",
+      "role": "Developer",
+      "type": "Task",
+      "priority": "Medium",
+      "status": "Todo",
+      "estHours": 7,
+      "actualHours": 0,
+      "complexity": 2,
+      "sprintId": "SPR-001",
+      "dueDate": null,
+      "description": "",
+      "checklist": {
+        "items": []
+      },
+      "comments": [],
+      "createdAt": "2026-09-27T23:45:02.149Z",
+      "updatedAt": "2026-09-27T23:45:02.149Z"
+    }
+  ],
+  "sprints": [
+    {
+      "id": "SPR-001",
+      "projectId": "default-project",
+      "name": "Tuần 1",
+      "startDate": "2026-09-28T00:00:00.000Z",
+      "endDate": "2026-10-04T00:00:00.000Z",
+      "capacityHours": 28
+    }
+  ],
+  "roles": [
+    "Developer",
+    "Marketing",
+    "Editor"
+  ],
+  "currentSprintId": "SPR-001",
+  "viewMode": "list",
+  "transactions": [],
+  "expenseCategories": [
+    "Công cụ / Phần mềm",
+    "Marketing",
+    "Thiết bị",
+    "Ăn uống",
+    "Học tập",
+    "Khác"
+  ],
+  "incomeCategories": [
+    "Bán hàng",
+    "Freelance",
+    "Lương",
+    "Khác"
+  ],
+  "hasSeeded": true
+}

@@ -3,7 +3,7 @@ import { useTaskStore } from '@/store/useTaskStore'
 import { TaskTable } from '@/components/overview/TaskTable'
 import { OverviewToolbar, useOverviewFilters } from '@/components/overview/OverviewToolbar'
 import { NewTaskModal } from '@/components/overview/NewTaskModal'
-import { EditTaskModal } from '@/components/overview/EditTaskModal'
+import { TaskDetailModal } from '@/components/overview/TaskDetailModal'
 import { NewProjectModal } from '@/components/projects/NewProjectModal'
 import type { Task } from '@/models'
 
@@ -93,7 +93,7 @@ export function OverviewPage() {
 
       {showNewTask && <NewTaskModal onClose={() => setShowNewTask(false)} />}
       {showNewProject && <NewProjectModal onClose={() => setShowNewProject(false)} />}
-      {editingTaskId && <EditTaskModal taskId={editingTaskId} onClose={() => setEditingTaskId(null)} />}
+      {editingTaskId && <TaskDetailModal taskId={editingTaskId} onClose={() => setEditingTaskId(null)} />}
     </div>
   )
 }
